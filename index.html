@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MPatch · 原型圈改工具</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-dot"></span><span>MPatch</span><small>原型圈改工具</small></div>
+        <div class="file-info" id="fileInfo">尚未打开原型</div>
+        <div class="top-actions">
+          <button class="ghost" id="loadSession">打开会话</button>
+          <button class="ghost" id="saveSession">保存会话</button>
+          <button class="ghost" id="refreshPrototype" disabled title="重新加载当前本地 HTML、CSS 和 JS">刷新原型</button>
+          <button class="primary" id="openProject">打开 HTML 原型</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <aside class="toolbar" aria-label="标注工具">
+          <button class="tool" data-tool="select" title="选择一个页面组件"><span>⌖</span>选择</button>
+          <button class="tool" data-tool="circle" title="圈选页面区域"><span>◯</span>圈选</button>
+          <button class="tool" data-tool="brush" title="涂抹页面区域"><span>〰</span>涂抹</button>
+          <button class="tool" data-tool="insert" title="指定插入位置"><span>＋</span>插入</button>
+        </aside>
+
+        <section class="canvas-panel">
+          <div class="canvas-header">
+            <div class="viewport-tabs"><button class="viewport active" data-viewport="desktop">桌面</button><button class="viewport" data-viewport="mobile">手机</button></div>
+            <span id="modeHelp">点击页面元素，描述你希望如何修改。</span>
+            <div class="annotation-actions">
+              <button class="ghost small" id="showDiagnostics">查看诊断</button>
+              <button class="ghost small" id="deleteSelectedAnnotation" disabled>删除所选笔迹</button>
+              <button class="ghost small" id="clearAnnotations">清除全部笔迹</button>
+            </div>
+          </div>
+          <div class="preview-outer" id="previewOuter">
+            <div class="empty-state" id="emptyState">
+              <div class="empty-logo">L</div>
+              <h1>打开本地 HTML 原型</h1>
+              <p>保留原有 HTML、CSS、图片和脚本，仅在上方记录你的修改意图。</p>
+              <button class="primary" id="openProjectEmpty">选择 HTML 文件</button>
+            </div>
+            <div class="preview-stage hidden" id="previewStage">
+              <webview id="prototypeView" class="prototype-view" allowpopups></webview>
+              <svg id="annotationLayer" class="annotation-layer" aria-label="标注画布"></svg>
+            </div>
+          </div>
+        </section>
+
+        <aside class="requirement-panel">
+          <div class="panel-heading"><div><span class="eyebrow">当前目标</span><h2 id="targetName">尚未选择元素</h2></div><span class="status-dot" id="targetStatus"></span></div>
+          <div class="target-card" id="targetCard">
+            <p>在左侧选择工具后，在原型上点选或圈选位置。</p>
+          </div>
+          <label for="operation">你想做什么</label>
+          <select id="operation">
+            <option value="modify">修改 / 调整</option>
+            <option value="insert">在此插入内容</option>
+            <option value="delete">删除 / 隐藏</option>
+            <option value="optimize">整体优化此区域</option>
+          </select>
+          <label for="intent">用自然语言描述需求</label>
+          <textarea id="intent" placeholder="例如：这里层级不清晰，重新整理，让价格和购买按钮更突出；保持整体高级、克制的感觉。"></textarea>
+          <div class="hint">不用选择颜色、字号或间距；系统会保留页面上下文，由大模型决定具体实现。</div>
+          <button id="addChange" class="primary wide">加入修改清单 <span>↵</span></button>
+          <section class="change-list-section">
+            <div class="list-title"><div class="list-title-main"><span>修改清单</span><span id="changeCount">0</span></div><button class="list-clear" id="clearChanges" type="button" title="清空修改清单" aria-label="清空修改清单">🗑</button></div>
+            <div class="change-list" id="changeList"><p class="list-empty">还没有修改需求。</p></div>
+          </section>
+          <button id="generatePrompt" class="generate">生成Prompt <span>→</span></button>
+        </aside>
+      </section>
+    </main>
+
+    <dialog id="promptDialog">
+      <div class="dialog-top"><div><span class="eyebrow">可复制的任务指令</span><h2>精简 Prompt</h2></div><button class="close-dialog" id="closeDialog">×</button></div>
+      <p class="dialog-intro">已自动去除非必要 CSS 和重复上下文。若模型无法定位元素，再使用“增强上下文”。</p>
+      <textarea id="promptOutput" readonly></textarea>
+      <div class="dialog-actions"><span id="tokenEstimate"></span><button class="ghost" id="copyPrompt">复制 Prompt</button><button class="primary" id="copyEnhanced">复制增强上下文版</button></div>
+    </dialog>
+    <dialog id="diagnosticDialog">
+      <div class="dialog-top"><div><span class="eyebrow">运行状态</span><h2>预览区诊断</h2></div><button class="close-dialog" id="closeDiagnostic">×</button></div>
+      <p class="dialog-intro">此信息用于确认 MPatch 画布、原生 webview 与原型页面的实际尺寸。</p>
+      <pre id="diagnosticOutput" class="diagnostic-output"></pre>
+      <div class="dialog-actions"><span>日志文件位于系统临时目录：mpatch-debug.log</span><button class="ghost" id="copyDiagnostic">复制诊断信息</button></div>
+    </dialog>
+    <script src="renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "mpatch",
+  "version": "0.1.0",
+  "description": "原型圈改与 AI 修改指令工具",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^39.2.7"
+  }
+}

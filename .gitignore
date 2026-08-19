@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+
+# Local prototype source material; not part of the MPatch application.
+*.xmind
+.xmind-staging/
+
+# Intermediate icon assets; SVG, PNG and ICNS are the distributable sources.
+assets/MPatch.iconset/
